@@ -1,7 +1,26 @@
+# =============================================================================
+# Stage 1: Builder
+# =============================================================================
 FROM python:3.12-slim AS builder
 
 # Install uv for fast dependency management
 COPY --from=ghcr.io/astral-sh/uv:0.11.8 /uv /uvx /bin/
+
+# Install build-time system dependencies (including Rust + OpenSSL for cryptography)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+       cargo \
+       rustc \
+       pkg-config \
+       libssl-dev \
+       libpq-dev \
+       libffi-dev \
+       libxml2-dev \
+       libxslt1-dev \
+       libjpeg-dev \
+       zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
@@ -9,18 +28,6 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_PROJECT_ENVIRONMENT=/usr/local
 
 WORKDIR /app
-
-# Install build-time system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-       build-essential \
-       libpq-dev \
-       libffi-dev \
-       libxml2-dev \
-       libxslt1-dev \
-       libjpeg-dev \
-       libz-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 # Copy dependency files first for better layer caching
 COPY pyproject.toml uv.lock ./
@@ -37,6 +44,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
 
+# =============================================================================
+# Stage 2: Runtime
+# =============================================================================
 FROM python:3.12-slim
 
 # Install only runtime system dependencies
