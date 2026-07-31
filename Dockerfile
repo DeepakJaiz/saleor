@@ -67,8 +67,8 @@ RUN groupadd --gid 1000 saleor \
 WORKDIR /app
 
 # Copy installed Python packages and project from builder
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder --chown=saleor:saleor /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder --chown=saleor:saleor /usr/local/bin /usr/local/bin
 COPY --from=builder --chown=saleor:saleor /app /app
 
 # Create required directories with proper ownership
