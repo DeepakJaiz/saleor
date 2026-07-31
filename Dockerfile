@@ -33,15 +33,13 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 
 # Install dependencies (no project code yet)
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-install-project --no-dev
+RUN uv sync --locked --no-install-project --no-dev
 
 # Copy project source
 COPY . .
 
 # Install the project itself
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-dev
+RUN uv sync --locked --no-dev
 
 
 # =============================================================================
