@@ -6,14 +6,11 @@ FROM python:3.12-slim AS builder
 # Install uv for fast dependency management
 COPY --from=ghcr.io/astral-sh/uv:0.11.8 /uv /uvx /bin/
 
-# Install build-time system dependencies (including Rust + OpenSSL for cryptography)
+# Install build-time system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        build-essential \
-       cargo \
-       rustc \
        pkg-config \
-       libssl-dev \
        libpq-dev \
        libffi-dev \
        libxml2-dev \
